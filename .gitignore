@@ -26,3 +26,6 @@ yarn-error.log*
 # swagger-codegen
 /openapi-typescript-client
 openapitools.json
+
+# license file
+/public/third-party-licenses.txt
