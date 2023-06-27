@@ -1,0 +1,270 @@
+# -----------------------------------------------------------------------------
+# SETTINGS
+# -----------------------------------------------------------------------------
+
+# Drone matrix: Additional ENV vars for substitution - http://docs.drone.io/matrix-builds/
+# Will be evaluated BEFORE the YAML is parsed, ONLY strings allowed, NO substitutions ${XXX} here.
+
+matrix:
+  include:
+    - BUILD_ENV: all
+      # The name of the k8s namespaces that these pipelines will target.
+      K8S_DEPLOY_NS_DEV: customer-product-dev # TODO: Change me
+      K8S_DEPLOY_NS_STAGING: customer-product-staging # TODO: Change me
+      K8S_DEPLOY_NS_PROD: customer-product-prod # TODO: Change me
+
+# YAML Configuration anchors - https://learnxinyminutes.com/docs/yaml/
+# Will be evaluated WHILE the YAML is parsed, any valid yaml allowed, substitutions ${XXX} allowed.
+
+alias:
+  # The image will be tagged with this, pushed to gcr and referenced with this key in the k8s deployment
+  - &IMAGE_DEPLOY_TAG ${DRONE_COMMIT_SHA}
+
+  # The full uniquely tagged image names
+  - &IMAGE_RUNNER_ID ${DRONE_REPO,,}-${BUILD_ENV}:${DRONE_COMMIT_SHA}
+  - &IMAGE_BUILDER_ID ${DRONE_REPO,,}-${BUILD_ENV}:${DRONE_COMMIT_SHA}-builder
+
+  # Defines which branches will trigger a docker image push our Google Cloud Registry (tags are always published)
+  - &GCR_PUBLISH_BRANCHES [dev, staging, main]
+
+  # Docker registry publish default settings
+  - &GCR_REGISTRY_SETTINGS
+    image: plugins/gcr
+    repo: a3cloud-192413/${DRONE_REPO,,}-${BUILD_ENV}
+    registry: eu.gcr.io
+    secrets:
+      - source: AAA_GCR_SERVICE_ACCOUNT_JSON
+        target: google_credentials
+    volumes: # mount needed to push the already build container
+      - /var/run/docker.sock:/var/run/docker.sock
+    # As this is a multistage build, we define here what we are going to push
+    target: runner
+    # local short-time-cache: don't cleanup any image layers after pushing
+    purge: false
+    # force compress of docker build context
+    compress: true
+
+  # Deployment default settings
+  - &K8S_DEPLOY_SETTINGS
+    image: eu.gcr.io/a3cloud-192413/aw/aaa-drone-kubernetes:latest
+    pull: true
+    secrets:
+    - source: AAA_K8S_SERVER
+      target: KUBERNETES_SERVER
+    - source: AAA_K8S_SERVICE_ACCOUNT_CRT
+      target: KUBERNETES_CERT
+    - source: AAA_K8S_SERVICE_ACCOUNT_TOKEN
+      target: KUBERNETES_TOKEN
+    - source: AAA_GCR_SERVICE_ACCOUNT_JSON
+      target: GCR_SERVICE_ACCOUNT
+    deployment: webapp
+    repo: eu.gcr.io/a3cloud-192413/${DRONE_REPO,,}-${BUILD_ENV}
+    container: [webapp]
+    tag: *IMAGE_DEPLOY_TAG
+    gcr_service_account_email: drone-ci-a3cloud@a3cloud-192413.iam.gserviceaccount.com
+    mgmt_repo: https://git.allaboutapps.at/scm/aw/a3cloud-mgmt.git
+    mgmt_git_email: infrastructure+drone@allaboutapps.at
+
+  # Which build events should trigger the main pipeline (defaults to all)
+  - &BUILD_EVENTS [push, pull_request, tag]
+
+  # Pipeline merge helper: only execute if build event received
+  - &WHEN_BUILD_EVENT
+    when:
+      event: *BUILD_EVENTS
+
+  - &DOCKER_BUILD_SETTINGS_RUNNER
+    image: docker:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      IMAGE_TAG: *IMAGE_RUNNER_ID
+    commands:
+      - |
+        docker build -t $${IMAGE_TAG} . --build-arg REACT_APP_COMMIT_HASH=${DRONE_BRANCH}_${DRONE_COMMIT_SHA:0:10}
+
+  - &DOCKER_BUILD_SETTINGS_BUILDER
+    image: docker:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      IMAGE_TAG: *IMAGE_BUILDER_ID
+    commands:
+      - |
+        docker build --target builder -t $${IMAGE_TAG} . --build-arg REACT_APP_COMMIT_HASH=${DRONE_BRANCH}_${DRONE_COMMIT_SHA:0:10}
+
+# The actual pipeline building our product
+pipeline:
+  # ---------------------------------------------------------------------------
+  # PRE BUILD
+  # ---------------------------------------------------------------------------
+
+  "docker build (target builder)":
+    group: pre-build
+    <<: *DOCKER_BUILD_SETTINGS_BUILDER
+    <<: *WHEN_BUILD_EVENT
+
+  # ---------------------------------------------------------------------------
+  # BUILD
+  # ---------------------------------------------------------------------------
+
+  "docker build (target runner)":
+    group: build
+    <<: *DOCKER_BUILD_SETTINGS_RUNNER
+    <<: *WHEN_BUILD_EVENT
+
+  # ---------------------------------------------------------------------------
+  # CHECK
+  # ---------------------------------------------------------------------------
+
+  "lint":
+    group: check
+    image: *IMAGE_BUILDER_ID
+    commands:
+      - cd /app
+      - yarn lint
+    <<: *WHEN_BUILD_EVENT
+
+  # ---------------------------------------------------------------------------
+  # TEST COMPONENTS
+  # ---------------------------------------------------------------------------
+
+  "test:components":
+    group: test
+    image: *IMAGE_BUILDER_ID
+    commands:
+      - cd /app
+      - yarn test:components
+    <<: *WHEN_BUILD_EVENT
+
+  # ---------------------------------------------------------------------------
+  # TEST E2E
+  # ---------------------------------------------------------------------------
+
+  # If you enable E2E tests don't forget to also uncomment the line in the Dockerfile
+  # which installs the Cypress dependencies.
+  # "test:e2e":
+  #   group: test
+  #   image: *IMAGE_BUILDER_ID
+  #   commands:
+  #     - cd /app
+  #     - yarn test:e2e
+  #   <<: *WHEN_BUILD_EVENT
+
+  # ---------------------------------------------------------------------------
+  # PUBLISH
+  # ---------------------------------------------------------------------------
+
+  # Built a branch? Push to cloud registry
+  "publish ${DRONE_BRANCH}_${DRONE_COMMIT_SHA:0:10}":
+    group: publish
+    <<: *GCR_REGISTRY_SETTINGS
+    tags:
+      - build_${DRONE_BUILD_NUMBER}
+      - ${DRONE_BRANCH}_${DRONE_COMMIT_SHA:0:10}
+      - *IMAGE_DEPLOY_TAG
+      - latest
+      - ${DRONE_BRANCH}
+      - '${DRONE_COMMIT_SHA:0:10}'
+    when:
+      branch: *GCR_PUBLISH_BRANCHES
+      event: *BUILD_EVENTS
+
+  # Built a tag? Push to cloud registry
+  "publish tag_${DRONE_COMMIT_SHA:0:10}":
+    group: publish
+    <<: *GCR_REGISTRY_SETTINGS
+    tags:
+      - build_${DRONE_BUILD_NUMBER}
+      - tag_${DRONE_COMMIT_SHA:0:10}
+      - *IMAGE_DEPLOY_TAG
+      - latest
+      - ${DRONE_TAG}
+      - '${DRONE_COMMIT_SHA:0:10}'
+    when:
+      event: tag
+
+  # ---------------------------------------------------------------------------
+  # DEPLOYMENT
+  # ---------------------------------------------------------------------------
+
+  # -----------------
+  # DEPLOYMENT DEV --
+  # -----------------
+
+  # autodeploy if it hits the branch
+  "deploy ${DRONE_COMMIT_SHA:0:10} to ${K8S_DEPLOY_NS_DEV} (auto)":
+    <<: *K8S_DEPLOY_SETTINGS
+    namespace: ${K8S_DEPLOY_NS_DEV}
+    mgmt_deployment_yaml: namespaces/${K8S_DEPLOY_NS_DEV}/webapp.deployment.yaml
+    when:
+      branch: dev
+      event: *BUILD_EVENTS
+
+  # promote dev through "drone deploy <repo> <build> <env>" or "woodpecker-cli deploy <repo> <build> <env>"
+  "deploy ${DRONE_COMMIT_SHA:0:10} to ${K8S_DEPLOY_NS_DEV} (promote)":
+    <<: *K8S_DEPLOY_SETTINGS
+    namespace: ${K8S_DEPLOY_NS_DEV}
+    mgmt_deployment_yaml: namespaces/${K8S_DEPLOY_NS_DEV}/webapp.deployment.yaml
+    when:
+      environment: ${BUILD_ENV}
+      event: deployment
+
+  # ---------------------
+  # DEPLOYMENT STAGING --
+  # ---------------------
+
+  # autodeploy if it hits the branch
+  "deploy ${DRONE_COMMIT_SHA:0:10} to ${K8S_DEPLOY_NS_STAGING} (auto)":
+    <<: *K8S_DEPLOY_SETTINGS
+    namespace: ${K8S_DEPLOY_NS_STAGING}
+    mgmt_deployment_yaml: namespaces/${K8S_DEPLOY_NS_STAGING}/webapp.deployment.yaml
+    when:
+      branch: staging
+      event: *BUILD_EVENTS
+
+  # promote staging through "drone deploy <repo> <build> <env>" or "woodpecker-cli deploy <repo> <build> <env>"
+  "deploy ${DRONE_COMMIT_SHA:0:10} to ${K8S_DEPLOY_NS_STAGING} (promote)":
+    <<: *K8S_DEPLOY_SETTINGS
+    namespace: ${K8S_DEPLOY_NS_STAGING}
+    mgmt_deployment_yaml: namespaces/${K8S_DEPLOY_NS_STAGING}/webapp.deployment.yaml
+    when:
+      environment: ${BUILD_ENV}
+      event: deployment
+
+  # ------------------
+  # DEPLOYMENT PROD --
+  # ------------------
+
+  # Note: Normally we don't autodeploy production for security reasons.
+  #       If you want to autodeploy prod make sure to discuss this with the team first.
+  #
+  # autodeploy if it hits the branch
+  # "deploy ${DRONE_COMMIT_SHA:0:10} to ${K8S_DEPLOY_NS_PROD} (auto)":
+  #   <<: *K8S_DEPLOY_SETTINGS
+  #   namespace: ${K8S_DEPLOY_NS_PROD}
+  #   mgmt_deployment_yaml: namespaces/${K8S_DEPLOY_NS_PROD}/webapp.deployment.yaml
+  #   when:
+  #     branch: staging
+  #     event: *BUILD_EVENTS
+
+  # promote production through "drone deploy <repo> <build> <env>" or "woodpecker-cli deploy <repo> <build> <env>"
+  "deploy ${DRONE_COMMIT_SHA:0:10} to ${K8S_DEPLOY_NS_PROD} (promote)":
+    <<: *K8S_DEPLOY_SETTINGS
+    namespace: ${K8S_DEPLOY_NS_PROD}
+    mgmt_deployment_yaml: namespaces/${K8S_DEPLOY_NS_PROD}/webapp.deployment.yaml
+    when:
+      environment: ${BUILD_ENV}
+      event: deployment
+
+# Long living services where the startup order does not matter (otherwise use detach: true)
+services:
+
+  # ---------------------------------------------------------------------------
+  # SERVICES
+  # ---------------------------------------------------------------------------
+
+  "env":
+    image: alpine
+    commands:
+      - "env | sort"
