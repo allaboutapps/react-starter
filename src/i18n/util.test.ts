@@ -1,7 +1,10 @@
+import { describe, expect, it } from "vitest";
 import { german } from "./de";
 import { MessageIDS, setLocale, t } from "./util";
 
 describe("t", () => {
+    // setLocale() uses the document DOM variable -> needs happy-dom, since vitest uses a NodeJS environment by default
+    // @vitest-environment happy-dom
     it("can infer placeholders from different ids", () => {
         setLocale("de");
 

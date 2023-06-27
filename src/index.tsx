@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { shouldPolyfill } from "@formatjs/intl-pluralrules/should-polyfill";
+import App from "./App";
 
 // https://formatjs.io/docs/polyfills/intl-pluralrules/#dynamic-import--capability-detection
 async function polyfill(locale: string) {
@@ -24,14 +25,13 @@ async function polyfill(locale: string) {
     await polyfill("en");
     await polyfill("de");
 
-    const App = require("./App").default;
-    require("./index.css");
-    require("./TextStyles.css");
-    require("./Styles.css");
+    import("./index.css");
+    import("./TextStyles.css");
+    import("./Styles.css");
 
     // Add commit hash as header comment for deployed versions
     const version = document.createComment(
-        `Version ${process.env.REACT_APP_COMMIT_HASH} @ ${process.env.REACT_APP_BUILD_DATE}`,
+        `Version ${import.meta.env.VITE_COMMIT_HASH} @ ${import.meta.env.VITE_BUILD_DATE}`,
     );
     document.head.prepend(version);
 

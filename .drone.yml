@@ -81,7 +81,7 @@ alias:
       IMAGE_TAG: *IMAGE_RUNNER_ID
     commands:
       - |
-        docker build -t $${IMAGE_TAG} . --build-arg REACT_APP_COMMIT_HASH=${DRONE_BRANCH}_${DRONE_COMMIT_SHA:0:10}
+        docker build -t $${IMAGE_TAG} . --build-arg VITE_COMMIT_HASH=${DRONE_BRANCH}_${DRONE_COMMIT_SHA:0:10}
 
   - &DOCKER_BUILD_SETTINGS_BUILDER
     image: docker:latest
@@ -91,7 +91,7 @@ alias:
       IMAGE_TAG: *IMAGE_BUILDER_ID
     commands:
       - |
-        docker build --target builder -t $${IMAGE_TAG} . --build-arg REACT_APP_COMMIT_HASH=${DRONE_BRANCH}_${DRONE_COMMIT_SHA:0:10}
+        docker build --target builder -t $${IMAGE_TAG} . --build-arg VITE_COMMIT_HASH=${DRONE_BRANCH}_${DRONE_COMMIT_SHA:0:10}
 
 # The actual pipeline building our product
 pipeline:

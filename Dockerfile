@@ -23,7 +23,7 @@ RUN rm -f /usr/local/bin/yarn && \
 
 # Install Cypress dependencies
 # https://docs.cypress.io/guides/continuous-integration/introduction#Dependencies
-# RUN apt-get update && apt-get install --no-install-recommends -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+# RUN apt-get update && apt-get install --no-install-recommends -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb xdg-utils
 
 # Copy only package.json and yarn.lock first to properly leverage Docker build caching for node_modules, greatly speeds up build times
 COPY package.json /app/package.json
@@ -36,7 +36,7 @@ RUN yarn install --pure-lockfile --production=false
 # Copy project sources
 COPY . /app/
 
-ARG REACT_APP_COMMIT_HASH=unspecified
+ARG VITE_COMMIT_HASH=unspecified
 
 # Build project and copy to nginx folder, then clean up sources
 # Re-export build args to strip double quotes from them (taken from https://stackoverflow.com/a/9733456 @ 2018-08-20)
@@ -44,8 +44,8 @@ ARG REACT_APP_COMMIT_HASH=unspecified
 RUN set -e \
     && cd /app \
     && export PUBLIC_URL=. \
-    && export REACT_APP_COMMIT_HASH=$(sed -e 's/^"//' -e 's/"$//' <<<"$REACT_APP_COMMIT_HASH") \
-    && export REACT_APP_BUILD_DATE=$(TZ=":Europe/Vienna" date) \
+    && export VITE_COMMIT_HASH=$(sed -e 's/^"//' -e 's/"$//' <<<"$VITE_COMMIT_HASH") \
+    && export VITE_BUILD_DATE=$(TZ=":Europe/Vienna" date) \
     && export NODE_ENV=production \
     && yarn build
 
@@ -57,9 +57,9 @@ RUN set -e \
 FROM nginx:alpine as runner
 EXPOSE 80
 
-ENV REACT_APP_API_BASE_URL=/api
-ENV REACT_APP_BASE_NAME=/
-ENV REACT_APP_DEPLOYMENT_ENV=unspecified
+ENV VITE_API_BASE_URL=/api
+ENV VITE_BASE_NAME=/
+ENV VITE_DEPLOYMENT_ENV=unspecified
 
 # Copy entrypoint script for replacing API base URL dynamically via environment variable
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh

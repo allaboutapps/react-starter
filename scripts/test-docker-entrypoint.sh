@@ -21,9 +21,9 @@ BASE="/docker-entry-test"
 API="/api"
 ENV="test-env"
 
-REACT_APP_BASE_NAME=$BASE
-REACT_APP_API_BASE_URL=$API
-REACT_APP_DEPLOYMENT_ENV=$ENV
+VITE_BASE_NAME=$BASE
+VITE_API_BASE_URL=$API
+VITE_DEPLOYMENT_ENV=$ENV
 
 # Run script with source so REACT_XYZ are visible
 # "test" param is used to skip exec "$@" at the end of the script

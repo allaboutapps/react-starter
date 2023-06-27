@@ -1,5 +1,15 @@
 {
-  "extends": ["plugin:@typescript-eslint/recommended", "react-app"],
+  "extends": [
+    "plugin:@typescript-eslint/recommended", 
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "eslint-config-prettier"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect" 
+    }
+  },
   "parserOptions": {
     "project": "./tsconfig.json"
   },
