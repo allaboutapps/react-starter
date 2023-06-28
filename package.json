@@ -34,7 +34,7 @@
     "build": "yarn license-check && tsc && vite build --base=./ &&./scripts/check-license-file.sh",
     "serve": "vite preview",
     "test": "vitest --passWithNoTests",
-    "test:components": "CI=true yarn test",
+    "test:ci": "CI=true yarn test",
     "test:e2e": "start-server-and-test start http://localhost:3000 cypress:run",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,gql,css,json,html,htm}'",
     "codegen": "./scripts/swagger-codegen.sh",
