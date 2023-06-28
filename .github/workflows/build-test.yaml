@@ -20,5 +20,8 @@ jobs:
         run: yarn test:ci
       - name: test docker-entrypoint.sh patching
         run: ./scripts/test-docker-entrypoint.sh
-        
+      - name: build docker image
+        run: yarn docker:build
+      - name: run image
+        run: yarn docker:run && ./scripts/check-url.sh http://localhost
       
