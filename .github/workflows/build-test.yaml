@@ -1,0 +1,24 @@
+name: Build & Test
+
+on:
+  push:
+    branches: "**"
+  pull_request:
+    branches: [main]
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup test project
+        run: yarn
+      - name: build test project
+        run: yarn build
+      - name: lint
+        run: yarn lint
+      - name: test
+        run: yarn test:ci
+      - name: test docker-entrypoint.sh patching
+        run: ./scripts/test-docker-entrypoint.sh
+        
+      
