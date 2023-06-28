@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to check if URL is reachable with status 200
+# Function to check if URL is reachable with status 200 -> used to verify our docker image can be hosted on different base URLs
 check_url() {
     url="$1"
     response=$(curl --silent --head --output /dev/null --write-out "%{http_code}" "$url")
