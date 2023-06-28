@@ -22,6 +22,9 @@ jobs:
         run: ./scripts/test-docker-entrypoint.sh
       - name: build docker image
         run: yarn docker:build
-      - name: run image
-        run: yarn docker:run && ./scripts/check-url.sh http://localhost
+      - name: verify container
+        run: yarn docker:verify
+      - name: verify container on different base url
+        run: yarn docker:verify-with-overwrites
+        
       
