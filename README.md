@@ -6,6 +6,8 @@ This is the [allaboutapps](https://allaboutapps.at/) TypeScript template for Rea
 - run `npm_config_yes=true npx tiged github:allaboutapps/react-starter my-project-name` to scaffold a new app, where `my-project-name` is the name of the target folder where you want to create your project.
 - change the "name" to your project name in `package.json`.
 - run `git init` if you want to initialize a repository.
+- run `yarn && yarn start` to install packages and start the dev server
+- The project will start with an example Login page. You can reuse this or remove it for your own project.
 
 ## What's included?
 - We strive to support Visual Studio Code as much as possible.
