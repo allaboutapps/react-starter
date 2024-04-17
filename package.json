@@ -49,7 +49,8 @@
     "docker:run": "docker run -p 80:80 aaa-react-starter",
     "docker:run-with-overwrites": "docker run -p 80:80 -e VITE_API_BASE_URL=\"/whatever-api-url\" -e VITE_BASE_NAME=\"/this-is-my-base\" -e VITE_DEPLOYMENT_ENV=\"happy-env\" aaa-react-starter",
     "docker:verify": "docker run -d --name test-container -p 80:80 aaa-react-starter && sleep 4 && ./scripts/check-url.sh http://localhost && docker stop test-container && docker rm test-container",
-    "docker:verify-with-overwrites": "docker run -d --name test-overwrites-container -p 80:80 -e VITE_API_BASE_URL=\"/whatever-api-url\" -e VITE_BASE_NAME=\"/this-is-my-base\" -e VITE_DEPLOYMENT_ENV=\"happy-env\" aaa-react-starter && sleep 4 && ./scripts/check-url.sh http://localhost/this-is-my-base && docker stop test-overwrites-container && docker rm test-overwrites-container"
+    "docker:verify-with-overwrites": "docker run -d --name test-overwrites-container -p 80:80 -e VITE_API_BASE_URL=\"/whatever-api-url\" -e VITE_BASE_NAME=\"/this-is-my-base\" -e VITE_DEPLOYMENT_ENV=\"happy-env\" aaa-react-starter && sleep 4 && ./scripts/check-url.sh http://localhost/this-is-my-base && docker stop test-overwrites-container && docker rm test-overwrites-container",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -92,6 +93,7 @@
     "vite": "^4.3.9",
     "vite-plugin-svgr": "^3.2.0",
     "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^0.32.2"
+    "vitest": "^0.32.2",
+    "husky": "^8.0.3"
   }
 }
