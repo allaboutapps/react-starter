@@ -102,7 +102,8 @@ pipeline:
   "docker build (target builder)":
     group: pre-build
     <<: *DOCKER_BUILD_SETTINGS_BUILDER
-    <<: *WHEN_BUILD_EVENT
+    when:
+      event: *BUILD_EVENTS
 
   # ---------------------------------------------------------------------------
   # BUILD
@@ -111,7 +112,8 @@ pipeline:
   "docker build (target runner)":
     group: build
     <<: *DOCKER_BUILD_SETTINGS_RUNNER
-    <<: *WHEN_BUILD_EVENT
+    when:
+      event: *BUILD_EVENTS
 
   # ---------------------------------------------------------------------------
   # CHECK
@@ -134,7 +136,7 @@ pipeline:
     image: *IMAGE_BUILDER_ID
     commands:
       - cd /app
-      - yarn test:components
+      - yarn test:ci
     <<: *WHEN_BUILD_EVENT
 
   # ---------------------------------------------------------------------------
