@@ -41,7 +41,7 @@
     "lint:google-fonts": "./scripts/lint-google-fonts.sh",
     "lint:base-href": "./scripts/lint-base-href.sh",
     "lint:node-version": "./scripts/lint-node-version.sh",
-    "lint": "eslint 'src/**/*.ts*' && yarn lint:google-fonts && yarn lint:base-href && yarn lint:node-version",
+    "lint": "eslint 'src/**/*.ts*' --max-warnings=0 && yarn lint:google-fonts && yarn lint:base-href && yarn lint:node-version",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "license-check": "license-checker --production --onlyAllow \"MIT;BSD-3-Clause;Apache-2.0;ISC;0BSD;Unlicense;UNLICENSED\" --out ./public/third-party-licenses.txt",
