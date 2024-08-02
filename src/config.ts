@@ -23,4 +23,4 @@ export const PUBLIC_URL = window.location.origin + BASE_NAME;
 export const LOADING_INDICATOR_DELAY_MS = 300;
 
 // For debugging only: Make /dashboard route publicly accessible
-export const DEBUG_PUBLIC_DASHBOARD = false;
+export const DEBUG_PUBLIC_DASHBOARD = true;
