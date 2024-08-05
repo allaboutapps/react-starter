@@ -49,7 +49,7 @@ To use a remote source run `yarn codegen dev`. Don't forget to set a correct `BA
 
 ## Setting env variables at runtime
 
-Sometimes there is a need to set env variables at runtime in the environment where the constainer is being executed. We provide support for the following env variables which can be set at runtime per default:
+Sometimes there is a need to set env variables at runtime in the environment where the container is being executed. We provide support for the following env variables which can be set at runtime per default:
 
 | Name          | Default       | Description   |
 | ------------- | ------------- | ------------- |
