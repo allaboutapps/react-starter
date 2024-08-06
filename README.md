@@ -17,7 +17,7 @@ This is the [allaboutapps](https://allaboutapps.at/) TypeScript template for Rea
 - Docker setup
 
 ## Docker
-The template comes with a ready to use Dockerfile for containerizgin your application. Use the following commands to build a ready to serve docker image of your application and run it:
+The template comes with a ready to use Dockerfile for containerizing your application. Use the following commands to build a ready to serve docker image of your application and run it:
 
 ```sh
 docker build . --build-arg VITE_COMMIT_HASH=happy-commit-hash -t aaa-react-starter
