@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { shouldPolyfill } from "@formatjs/intl-pluralrules/should-polyfill";
 import App from "./App";
+import { NuqsAdapter } from "nuqs/adapters/react";
 
 // https://formatjs.io/docs/polyfills/intl-pluralrules/#dynamic-import--capability-detection
 async function polyfill(locale: string) {
@@ -39,5 +40,9 @@ async function polyfill(locale: string) {
     // eslint-disable-next-line
     const root = createRoot(container!);
 
-    root.render(<App />);
+    root.render(
+        <NuqsAdapter>
+            <App />
+        </NuqsAdapter>,
+    );
 })();

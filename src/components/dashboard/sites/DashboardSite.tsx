@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import React from "react";
 import { useConfirmationDialog } from "../../../hooks/useConfirmationDialog";
 import { useHashParams } from "../../../hooks/useHashParams";
@@ -11,6 +11,8 @@ import { sleep } from "../../../util/helpers";
 import { BaseRoutes } from "../../app/router/BaseRoutes";
 import { usePushRoute } from "../../app/router/history";
 import { DialogVariant, getDialogConfiguration } from "../../util/Dialogs";
+import { useShallow } from "zustand/react/shallow";
+import { useQueryState } from "nuqs";
 
 const Uptime = () => {
     const [uptime, setUptime] = React.useState(0);
@@ -37,12 +39,14 @@ export const DashboardSite = () => {
     const [action, setAction] = React.useState<DialogVariant>("add");
     const [count, setCount] = React.useState(1);
 
+    const [search, setSearch] = useQueryState("search", {
+        shallow: true,
+    });
+
     const logout = useAuthStore((state) => state.logout);
-    const [locale, setIsLoading, setError] = useGeneralStore((state) => [
-        state.locale,
-        state.setIsLoading,
-        state.setError,
-    ]);
+    const [locale, setIsLoading, setError] = useGeneralStore(
+        useShallow((state) => [state.locale, state.setIsLoading, state.setError]),
+    );
 
     const pushRoute = usePushRoute();
 
@@ -146,6 +150,11 @@ export const DashboardSite = () => {
                 {t("button.showError")}
             </Button>
             <QueryAndHash />
+            <TextField
+                value={search ?? ""}
+                onChange={(e) => setSearch(e.target.value || null)}
+                placeholder={t("search.placeholder")}
+            />
             <Button
                 variant="outlined"
                 onClick={() => {

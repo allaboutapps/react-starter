@@ -1,4 +1,4 @@
-import { ReactQueryDevtools } from "react-query/devtools";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import { BASE_NAME, DEBUG_PUBLIC_DASHBOARD, LOADING_INDICATOR_DELAY_MS } from "../../../config";
 import { IDebugTab, useDebugStore } from "../../../stores/debugStore";

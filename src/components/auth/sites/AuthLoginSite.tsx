@@ -1,7 +1,8 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@mui/material";
 import { AxiosError } from "axios";
-import { Field, Form, Formik } from "formik";
 import * as React from "react";
+import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { t } from "../../../i18n/util";
 import { useLogin } from "../../../network/api/useLogin";
@@ -11,7 +12,6 @@ import { usePushRoute } from "../../app/router/history";
 import { DashboardRoutes } from "../../dashboard/router/DashboardRoutes";
 import { CustomInputField } from "../../ui/CustomInputField";
 import { Colors } from "../../util/Colors";
-import { ImageLogo } from "../../util/Images";
 
 interface ILoginValues {
     email: string;
@@ -19,6 +19,25 @@ interface ILoginValues {
 }
 
 export const AuthLoginSite = () => {
+    const { handleSubmit, formState, control } = useForm<ILoginValues>({
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+        mode: "onTouched",
+        resolver: yupResolver(
+            Yup.object().shape({
+                email: Yup.string()
+                    .email(t("screen.login.form.email.validation_error"))
+                    .required(t("screen.login.form.email.validation_error"))
+                    .trim(),
+                password: Yup.string()
+                    .min(6, t("screen.login.form.password.validation_error"))
+                    .required(t("screen.login.form.password.validation_error")),
+            }),
+        ),
+    });
+
     const [error, setError] = React.useState<string>();
     const pushRoute = usePushRoute();
 
@@ -28,7 +47,7 @@ export const AuthLoginSite = () => {
 
     const setIsLoading = useGeneralStore((state) => state.setIsLoading);
 
-    const handleSubmit = async (model: ILoginValues) => {
+    const onSubmit = async (model: ILoginValues) => {
         setIsLoading(true);
         setError("");
 
@@ -61,10 +80,9 @@ export const AuthLoginSite = () => {
                 padding: 24,
             }}
         >
-            <ImageLogo style={{ maxWidth: 200 }} />
             <div
                 style={{
-                    background: "#fff",
+                    background: Colors.WHITE,
                     borderRadius: 4,
                     width: "100%",
                     maxWidth: 320,
@@ -74,7 +92,7 @@ export const AuthLoginSite = () => {
                 <div
                     style={{
                         background: Colors.PRIMARY_COLOR,
-                        color: "#fff",
+                        color: Colors.WHITE,
                         textTransform: "uppercase",
                         padding: 24,
                         borderTopLeftRadius: 4,
@@ -84,64 +102,44 @@ export const AuthLoginSite = () => {
                 >
                     {t("screen.login.title")}
                 </div>
-                <div style={{ padding: 24, border: `1px solid ${Colors.PRIMARY_COLOR}`, borderTop: "none" }}>
-                    <Formik
-                        initialValues={{
-                            email: "",
-                            password: "",
+
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    style={{ padding: 24, border: `1px solid ${Colors.PRIMARY_COLOR}`, borderTop: "none" }}
+                >
+                    <CustomInputField
+                        name="email"
+                        control={control}
+                        label={t("screen.login.form.email.label")}
+                        type="email"
+                        autoComplete="username"
+                        required
+                    />
+
+                    <CustomInputField
+                        name="password"
+                        control={control}
+                        label={t("screen.login.form.password.label")}
+                        type="password"
+                        autoComplete="current-password"
+                        required
+                    />
+
+                    {error && <div style={{ color: Colors.ERROR, fontSize: 14 }}>{error}</div>}
+                    <Button
+                        variant="contained"
+                        style={{
+                            boxShadow: "none",
+                            borderRadius: 24,
+                            marginTop: 24,
                         }}
-                        onSubmit={handleSubmit}
-                        validationSchema={Yup.object().shape({
-                            email: Yup.string()
-                                .email(t("screen.login.form.email.validation_error"))
-                                .required(t("screen.login.form.email.validation_error"))
-                                .trim(),
-                            password: Yup.string()
-                                .min(6, t("screen.login.form.password.validation_error"))
-                                .required(t("screen.login.form.password.validation_error")),
-                        })}
-                        validateOnBlur
+                        fullWidth
+                        disabled={formState.isSubmitting}
+                        type="submit"
                     >
-                        {({ errors, touched, isSubmitting }) => (
-                            <Form>
-                                <Field
-                                    component={CustomInputField}
-                                    label={t("screen.login.form.email.label")}
-                                    name="email"
-                                    type="email"
-                                    required
-                                    autoComplete="username"
-                                    errorMessage={errors.email}
-                                    isTouched={touched.email}
-                                />
-                                <Field
-                                    component={CustomInputField}
-                                    label={t("screen.login.form.password.label")}
-                                    name="password"
-                                    type="password"
-                                    required
-                                    autoComplete="current-password"
-                                    errorMessage={errors.password}
-                                    isTouched={touched.password}
-                                />
-                                {error && <div style={{ color: Colors.ERROR, fontSize: 14 }}>{error}</div>}
-                                <Button
-                                    variant="contained"
-                                    style={{
-                                        boxShadow: "none",
-                                        borderRadius: 24,
-                                        marginTop: 24,
-                                    }}
-                                    fullWidth
-                                    disabled={isSubmitting}
-                                    type="submit"
-                                >
-                                    {t("screen.login.form.submit")}
-                                </Button>
-                            </Form>
-                        )}
-                    </Formik>
-                </div>
+                        {t("screen.login.form.submit")}
+                    </Button>
+                </form>
             </div>
         </div>
     );
