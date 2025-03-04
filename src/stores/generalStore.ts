@@ -1,6 +1,5 @@
 import { DEFAULT_LOCALE } from "../i18n/i18nDefaults";
 import { ILocales } from "../i18n/ILocales";
-
 import { devtools, combine } from "zustand/middleware";
 import { create } from "zustand";
 

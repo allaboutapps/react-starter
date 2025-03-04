@@ -38,4 +38,5 @@ export const german = {
     "addDialog.title.multi": "Einträge hinzufügen",
     "screen.dashboard.html": "Das ist ein <b>fetter Text</b> und das ist <i>kursiv</i>",
     "test.twoParams": "Text mit {param1} und {param2}",
+    "search.placeholder": "Suche...",
 } as const;

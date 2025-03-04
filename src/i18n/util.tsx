@@ -63,11 +63,12 @@ type Placeholders<Translation extends string> = Translation extends `${string}{$
 /**
  * Converts the union type "param1" | "param2" to an object type { param1: PrimitiveType, param2: PrimitiveType }
  */
-type ParamsForTranslation<Translation extends string> = Placeholders<Translation> extends never
-    ? never
-    : {
-          [Key in Placeholders<Translation>]: PrimitiveType;
-      };
+type ParamsForTranslation<Translation extends string> =
+    Placeholders<Translation> extends never
+        ? never
+        : {
+              [Key in Placeholders<Translation>]: PrimitiveType;
+          };
 
 type TranslationForID<ID extends MessageIDS> = (typeof german)[ID];
 
@@ -107,16 +108,16 @@ export function tHtml<ID extends MessageIDS, Params extends ParamsForID<ID>>(
         `${String(messageId)} (${intl.formatMessage({ id: messageId })})`
     ) : (
         <FormattedMessage
-            key={messageId}
+            key={messageId.toString()}
             id={messageId}
             values={{
                 b: (chunks) => (
-                    <b>
+                    <b key={crypto.randomUUID()}>
                         <>{chunks}</>
                     </b>
                 ),
                 i: (chunks) => (
-                    <i>
+                    <i key={crypto.randomUUID()}>
                         <>{chunks}</>
                     </i>
                 ),

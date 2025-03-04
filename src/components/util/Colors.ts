@@ -8,4 +8,5 @@ export const Colors = {
     BODY2: "var(--body2)",
     HEADINGS: "var(--headings)",
     ERROR: "red",
+    WHITE: "white",
 };

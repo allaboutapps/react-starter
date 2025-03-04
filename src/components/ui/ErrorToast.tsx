@@ -1,11 +1,13 @@
 import { Slide, Snackbar } from "@mui/material";
 import { useGeneralStore } from "../../stores/generalStore";
 import { Colors } from "../util/Colors";
+import { useShallow } from "zustand/react/shallow";
 
 const SlideTransition = (props: any) => <Slide {...props} direction="up" />;
 
 export const ErrorToast = () => {
-    const [error, popError] = useGeneralStore((state) => [state.getError(), state.popError]);
+    const [error, popError] = useGeneralStore(useShallow((state) => [state.getError(), state.popError]));
+
     const handleClose = () => {
         popError();
     };

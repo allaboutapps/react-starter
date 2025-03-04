@@ -36,4 +36,5 @@ export const english = {
     "addDialog.title": "Add entry",
     "addDialog.title.multi": "Add entries",
     "screen.dashboard.html": "This is <b>bold text</b> and this is <i>italic</i>",
+    "search.placeholder": "Search...",
 } as const;

@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@mui/material";
 import * as React from "react";
 import { RawIntlProvider } from "react-intl";
-import { QueryClientProvider } from "react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { AppRouter } from "./components/app/router/AppRouter";
 import { theme } from "./components/util/Theme";
 import { intl } from "./i18n/util";
