@@ -9,7 +9,7 @@ generate() {
 
 if [[ $1 = "local" ]]; then
     echo "local"
-    # For local codegen use yarn codegen local filename (you have to be in project root, the filename.yml you're trying to import as well)
+    # For local codegen use pnpm codegen local filename (you have to be in project root, the filename.yml you're trying to import as well)
     if [ -z "$2" ]; then
         echo
         echo "***************************************************"
