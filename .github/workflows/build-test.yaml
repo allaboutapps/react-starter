@@ -10,21 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
       - name: setup test project
-        run: yarn
+        run: pnpm i
       - name: build test project
-        run: yarn build
+        run: pnpm build
       - name: lint
-        run: yarn lint
+        run: pnpm lint
       - name: test
-        run: yarn test:ci
+        run: pnpm test:ci
       - name: test docker-entrypoint.sh patching
         run: ./scripts/test-docker-entrypoint.sh
       - name: build docker image
-        run: yarn docker:build
+        run: pnpm docker:build
       - name: verify container
-        run: yarn docker:verify
+        run: pnpm docker:verify
       - name: verify container on different base url
-        run: yarn docker:verify-with-overwrites
+        run: pnpm docker:verify-with-overwrites
         
       

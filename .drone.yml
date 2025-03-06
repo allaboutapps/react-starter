@@ -124,7 +124,7 @@ pipeline:
     image: *IMAGE_BUILDER_ID
     commands:
       - cd /app
-      - yarn lint
+      - pnpm lint
     <<: *WHEN_BUILD_EVENT
 
   # ---------------------------------------------------------------------------
@@ -136,7 +136,7 @@ pipeline:
     image: *IMAGE_BUILDER_ID
     commands:
       - cd /app
-      - yarn test:ci
+      - pnpm test:ci
     <<: *WHEN_BUILD_EVENT
 
   # ---------------------------------------------------------------------------
@@ -150,7 +150,7 @@ pipeline:
   #   image: *IMAGE_BUILDER_ID
   #   commands:
   #     - cd /app
-  #     - yarn test:e2e
+  #     - pnpm test:e2e
   #   <<: *WHEN_BUILD_EVENT
 
   # ---------------------------------------------------------------------------
