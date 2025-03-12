@@ -25,7 +25,8 @@
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "warn",
+    "react-refresh/only-export-components": "warn"
   },
-  "plugins": ["react-hooks"]
+  "plugins": ["react-hooks", "react-refresh"]
 }
