@@ -6,7 +6,7 @@ This is the [allaboutapps](https://allaboutapps.at/) TypeScript template for Rea
 - run `npm_config_yes=true npx tiged github:allaboutapps/react-starter my-project-name` to scaffold a new app, where `my-project-name` is the name of the target folder where you want to create your project.
 - change the "name" to your project name in `package.json`.
 - run `git init` if you want to initialize a repository.
-- run `yarn && yarn start` to install packages and start the dev server
+- run `pnpm i && pnpm start` to install packages and start the dev server
 - The project will start with an example Login page. You can reuse this or remove it for your own project.
 
 ## What's included?
@@ -31,9 +31,9 @@ docker run -p 80:80 -e VITE_API_BASE_URL="/whatever-api-url" -e VITE_BASE_NAME="
 
 or use the commands
 
-- `yarn docker:build`
-- `yarn docker:run`
-- `yarn docker:run-with-overwrites`
+- `pnpm docker:build`
+- `pnpm docker:run`
+- `pnpm docker:run-with-overwrites`
 
 ## How to generate types from a Swagger specification
 
@@ -41,11 +41,11 @@ We provide a script that lets you generate TypeScript types for a Swagger specif
 
 ### Local
 
-Run `yarn codegen local <file_name>` to generate types from a swagger file in your local repository. Note that the file needs to be located at the root folder.
+Run `pnpm codegen local <file_name>` to generate types from a swagger file in your local repository. Note that the file needs to be located at the root folder.
 
 ### Remote
 
-To use a remote source run `yarn codegen dev`. Don't forget to set a correct `BASE_URL` in `swagger-codegen.sh` which can be found in `./scripts`.
+To use a remote source run `pnpm codegen dev`. Don't forget to set a correct `BASE_URL` in `swagger-codegen.sh` which can be found in `./scripts`.
 
 ## Setting env variables at runtime
 
